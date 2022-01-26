@@ -1,0 +1,756 @@
+
+
+
+    import time
+    import datetime
+
+
+    ################################################################################
+    #   Handle all connections and rights for the server
+    ################################################################################
+    class my_task():
+
+    	name = None
+    	priority = -1
+    	period = -1
+    	execution_time = -1
+    	next_ready_time = -1
+    	state = "SLEEPING"
+
+
+        	############################################################################
+    	def __init__(self, name, priority, period, execution_time):
+
+    		self.name = name
+    		self.priority = priority
+    		self.period = period
+    		self.execution_time = execution_time
+    		self.next_ready_time = datetime.datetime.now()
+    		self.state = "READY"
+
+
+        	############################################################################
+    	def update_state(self):
+    		
+    		if self.next_ready_time < datetime.datetime.now() :
+    			
+    			current_task.state = "READY"
+    	
+    		print("\t" + self.name + " : " + self.state + "\t(Deadline = " + self.next_ready_time.strftime("%H:%M:%S") + ", Priority = " + str(self.priority) + ")")
+
+
+        	############################################################################
+    	def run(self):
+
+    		# Update execution_time
+    		self.next_ready_time  += datetime.timedelta(seconds=self.period)
+
+    		# Start task
+    		print("\t" + self.name + " : Starting (" + datetime.datetime.now().strftime("%H:%M:%S") + ")")
+    		
+    		self.state = "RUNNING"
+    		
+    		time.sleep(self.execution_time)
+
+    		# Stop task
+    		print("\t" + self.name + " : Ending (" + datetime.datetime.now().strftime("%H:%M:%S") + ")")
+    		
+    		self.state = "SLEEPING"
+
+
+    ####################################################################################################
+    #
+    #
+    #
+    ####################################################################################################
+    if __name__ == '__main__':
+
+
+    	# Instanciation of task objects
+    	task_list = []
+    	task_list.append(my_task(name="Pump_1", priority=1, period=5, execution_time=2))
+    	task_list.append(my_task(name="Pump_2", priority=2, period=15, execution_time=3))
+    	task_list.append(my_task(name="Machine_1", priority=3, period=5, execution_time=5))
+    	task_list.append(my_task(name="Machine_2", priority=4, period=5, execution_time=3))
+
+
+    	while(1):
+
+    		time_now = datetime.datetime.now()
+    		
+    		print("\nScheduler : " + time_now.strftime("%H:%M:%S"))
+
+
+    		# Update task state : SLEEPING => READY
+    		for current_task in task_list:
+    				
+    			current_task.update_state()
+
+
+
+    		# Search for task with higher priority
+    		task_to_run = None
+    		task_higher_priority = 0
+
+    		for current_task in task_list:
+    		
+    			if (current_task.state == "READY") & (current_task.priority > task_higher_priority) :
+    			
+    				task_higher_priority = current_task.priority
+    				task_to_run = current_task
+
+    		
+    		# Start task
+    		if task_to_run == None :
+    			time.sleep(5)
+    			
+    		else :
+    			task_to_run.run()
+
+
+    Scheduler : 10:37:05
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:05, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:37:05, Priority = 4)
+    	Machine_2 : Starting (10:37:05)
+    	Machine_2 : Ending (10:37:08)
+
+    Scheduler : 10:37:08
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:05, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:37:10, Priority = 4)
+    	Machine_1 : Starting (10:37:08)
+    	Machine_1 : Ending (10:37:13)
+
+    Scheduler : 10:37:13
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:10, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:37:10, Priority = 4)
+    	Machine_2 : Starting (10:37:14)
+    	Machine_2 : Ending (10:37:17)
+
+    Scheduler : 10:37:17
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:10, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:37:15, Priority = 4)
+    	Machine_2 : Starting (10:37:17)
+    	Machine_2 : Ending (10:37:20)
+
+    Scheduler : 10:37:20
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:10, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:37:20, Priority = 4)
+    	Machine_1 : Starting (10:37:20)
+    	Machine_1 : Ending (10:37:25)
+
+    Scheduler : 10:37:25
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:15, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:37:20, Priority = 4)
+    	Machine_2 : Starting (10:37:25)
+    	Machine_2 : Ending (10:37:28)
+
+    Scheduler : 10:37:28
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:15, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:37:25, Priority = 4)
+    	Machine_2 : Starting (10:37:28)
+    	Machine_2 : Ending (10:37:31)
+
+    Scheduler : 10:37:31
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:15, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:37:30, Priority = 4)
+    	Machine_2 : Starting (10:37:31)
+    	Machine_2 : Ending (10:37:34)
+
+    Scheduler : 10:37:34
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:15, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:37:35, Priority = 4)
+    	Machine_1 : Starting (10:37:34)
+    	Machine_1 : Ending (10:37:39)
+
+    Scheduler : 10:37:39
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:20, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:37:35, Priority = 4)
+    	Machine_2 : Starting (10:37:39)
+    	Machine_2 : Ending (10:37:42)
+
+    Scheduler : 10:37:42
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:20, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:37:40, Priority = 4)
+    	Machine_2 : Starting (10:37:42)
+    	Machine_2 : Ending (10:37:45)
+
+    Scheduler : 10:37:45
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:20, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:37:45, Priority = 4)
+    	Machine_1 : Starting (10:37:45)
+    	Machine_1 : Ending (10:37:50)
+
+    Scheduler : 10:37:50
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:25, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:37:45, Priority = 4)
+    	Machine_2 : Starting (10:37:50)
+    	Machine_2 : Ending (10:37:53)
+
+    Scheduler : 10:37:53
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:25, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:37:50, Priority = 4)
+    	Machine_2 : Starting (10:37:53)
+    	Machine_2 : Ending (10:37:56)
+
+    Scheduler : 10:37:56
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:25, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:37:55, Priority = 4)
+    	Machine_2 : Starting (10:37:56)
+    	Machine_2 : Ending (10:37:59)
+
+    Scheduler : 10:37:59
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:25, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:38:00, Priority = 4)
+    	Machine_1 : Starting (10:37:59)
+    	Machine_1 : Ending (10:38:04)
+
+    Scheduler : 10:38:04
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:30, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:38:00, Priority = 4)
+    	Machine_2 : Starting (10:38:04)
+    	Machine_2 : Ending (10:38:07)
+
+    Scheduler : 10:38:07
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:30, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:38:05, Priority = 4)
+    	Machine_2 : Starting (10:38:07)
+    	Machine_2 : Ending (10:38:10)
+
+    Scheduler : 10:38:10
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:30, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:38:10, Priority = 4)
+    	Machine_1 : Starting (10:38:10)
+    	Machine_1 : Ending (10:38:15)
+
+    Scheduler : 10:38:15
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:35, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:38:10, Priority = 4)
+    	Machine_2 : Starting (10:38:15)
+    	Machine_2 : Ending (10:38:18)
+
+    Scheduler : 10:38:18
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:35, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:38:15, Priority = 4)
+    	Machine_2 : Starting (10:38:18)
+    	Machine_2 : Ending (10:38:21)
+
+    Scheduler : 10:38:21
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:35, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:38:20, Priority = 4)
+    	Machine_2 : Starting (10:38:21)
+    	Machine_2 : Ending (10:38:24)
+
+    Scheduler : 10:38:24
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:35, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:38:25, Priority = 4)
+    	Machine_1 : Starting (10:38:24)
+    	Machine_1 : Ending (10:38:29)
+
+    Scheduler : 10:38:29
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:40, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:38:25, Priority = 4)
+    	Machine_2 : Starting (10:38:29)
+    	Machine_2 : Ending (10:38:32)
+
+    Scheduler : 10:38:32
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:40, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:38:30, Priority = 4)
+    	Machine_2 : Starting (10:38:32)
+    	Machine_2 : Ending (10:38:35)
+
+    Scheduler : 10:38:35
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:40, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:38:35, Priority = 4)
+    	Machine_1 : Starting (10:38:35)
+    	Machine_1 : Ending (10:38:40)
+
+    Scheduler : 10:38:40
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:45, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:38:35, Priority = 4)
+    	Machine_2 : Starting (10:38:40)
+    	Machine_2 : Ending (10:38:43)
+
+    Scheduler : 10:38:43
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:45, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:38:40, Priority = 4)
+    	Machine_2 : Starting (10:38:43)
+    	Machine_2 : Ending (10:38:46)
+
+    Scheduler : 10:38:46
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:45, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:38:45, Priority = 4)
+    	Machine_2 : Starting (10:38:46)
+    	Machine_2 : Ending (10:38:49)
+
+    Scheduler : 10:38:49
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:45, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:38:50, Priority = 4)
+    	Machine_1 : Starting (10:38:49)
+    	Machine_1 : Ending (10:38:54)
+
+    Scheduler : 10:38:54
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:50, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:38:50, Priority = 4)
+    	Machine_2 : Starting (10:38:54)
+    	Machine_2 : Ending (10:38:57)
+
+    Scheduler : 10:38:57
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:50, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:38:55, Priority = 4)
+    	Machine_2 : Starting (10:38:57)
+    	Machine_2 : Ending (10:39:00)
+
+    Scheduler : 10:39:00
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:50, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:39:00, Priority = 4)
+    	Machine_1 : Starting (10:39:00)
+    	Machine_1 : Ending (10:39:05)
+
+    Scheduler : 10:39:05
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:55, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:39:00, Priority = 4)
+    	Machine_2 : Starting (10:39:05)
+    	Machine_2 : Ending (10:39:08)
+
+    Scheduler : 10:39:08
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:55, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:39:05, Priority = 4)
+    	Machine_2 : Starting (10:39:08)
+    	Machine_2 : Ending (10:39:11)
+
+    Scheduler : 10:39:11
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:55, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:39:10, Priority = 4)
+    	Machine_2 : Starting (10:39:11)
+    	Machine_2 : Ending (10:39:14)
+
+    Scheduler : 10:39:14
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:37:55, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:39:15, Priority = 4)
+    	Machine_1 : Starting (10:39:14)
+    	Machine_1 : Ending (10:39:19)
+
+    Scheduler : 10:39:19
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:00, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:39:15, Priority = 4)
+    	Machine_2 : Starting (10:39:19)
+    	Machine_2 : Ending (10:39:22)
+
+    Scheduler : 10:39:22
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:00, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:39:20, Priority = 4)
+    	Machine_2 : Starting (10:39:22)
+    	Machine_2 : Ending (10:39:25)
+
+    Scheduler : 10:39:25
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:00, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:39:25, Priority = 4)
+    	Machine_1 : Starting (10:39:25)
+    	Machine_1 : Ending (10:39:30)
+
+    Scheduler : 10:39:30
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:05, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:39:25, Priority = 4)
+    	Machine_2 : Starting (10:39:30)
+    	Machine_2 : Ending (10:39:33)
+
+    Scheduler : 10:39:33
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:05, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:39:30, Priority = 4)
+    	Machine_2 : Starting (10:39:33)
+    	Machine_2 : Ending (10:39:36)
+
+    Scheduler : 10:39:36
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:05, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:39:35, Priority = 4)
+    	Machine_2 : Starting (10:39:36)
+    	Machine_2 : Ending (10:39:39)
+
+    Scheduler : 10:39:39
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:05, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:39:40, Priority = 4)
+    	Machine_1 : Starting (10:39:39)
+    	Machine_1 : Ending (10:39:44)
+
+    Scheduler : 10:39:44
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:10, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:39:40, Priority = 4)
+    	Machine_2 : Starting (10:39:44)
+    	Machine_2 : Ending (10:39:47)
+
+    Scheduler : 10:39:47
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:10, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:39:45, Priority = 4)
+    	Machine_2 : Starting (10:39:47)
+    	Machine_2 : Ending (10:39:50)
+
+    Scheduler : 10:39:50
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:10, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:39:50, Priority = 4)
+    	Machine_1 : Starting (10:39:50)
+    	Machine_1 : Ending (10:39:55)
+
+    Scheduler : 10:39:55
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:15, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:39:50, Priority = 4)
+    	Machine_2 : Starting (10:39:55)
+    	Machine_2 : Ending (10:39:58)
+
+    Scheduler : 10:39:58
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:15, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:39:55, Priority = 4)
+    	Machine_2 : Starting (10:39:58)
+    	Machine_2 : Ending (10:40:01)
+
+    Scheduler : 10:40:01
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:15, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:40:00, Priority = 4)
+    	Machine_2 : Starting (10:40:01)
+    	Machine_2 : Ending (10:40:04)
+
+    Scheduler : 10:40:04
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:15, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:40:05, Priority = 4)
+    	Machine_1 : Starting (10:40:04)
+    	Machine_1 : Ending (10:40:09)
+
+    Scheduler : 10:40:09
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:20, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:40:05, Priority = 4)
+    	Machine_2 : Starting (10:40:09)
+    	Machine_2 : Ending (10:40:12)
+
+    Scheduler : 10:40:12
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:20, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:40:10, Priority = 4)
+    	Machine_2 : Starting (10:40:12)
+    	Machine_2 : Ending (10:40:15)
+
+    Scheduler : 10:40:15
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:20, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:40:15, Priority = 4)
+    	Machine_1 : Starting (10:40:15)
+    	Machine_1 : Ending (10:40:20)
+
+    Scheduler : 10:40:20
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:25, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:40:15, Priority = 4)
+    	Machine_2 : Starting (10:40:20)
+    	Machine_2 : Ending (10:40:23)
+
+    Scheduler : 10:40:23
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:25, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:40:20, Priority = 4)
+    	Machine_2 : Starting (10:40:23)
+    	Machine_2 : Ending (10:40:26)
+
+    Scheduler : 10:40:26
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:25, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:40:25, Priority = 4)
+    	Machine_2 : Starting (10:40:26)
+    	Machine_2 : Ending (10:40:29)
+
+    Scheduler : 10:40:29
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:25, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:40:30, Priority = 4)
+    	Machine_1 : Starting (10:40:29)
+    	Machine_1 : Ending (10:40:34)
+
+    Scheduler : 10:40:34
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:30, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:40:30, Priority = 4)
+    	Machine_2 : Starting (10:40:34)
+    	Machine_2 : Ending (10:40:37)
+
+    Scheduler : 10:40:37
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:30, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:40:35, Priority = 4)
+    	Machine_2 : Starting (10:40:37)
+    	Machine_2 : Ending (10:40:40)
+
+    Scheduler : 10:40:40
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:30, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:40:40, Priority = 4)
+    	Machine_1 : Starting (10:40:40)
+    	Machine_1 : Ending (10:40:45)
+
+    Scheduler : 10:40:45
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:35, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:40:40, Priority = 4)
+    	Machine_2 : Starting (10:40:45)
+    	Machine_2 : Ending (10:40:48)
+
+    Scheduler : 10:40:48
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:35, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:40:45, Priority = 4)
+    	Machine_2 : Starting (10:40:48)
+    	Machine_2 : Ending (10:40:51)
+
+    Scheduler : 10:40:51
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:35, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:40:50, Priority = 4)
+    	Machine_2 : Starting (10:40:51)
+    	Machine_2 : Ending (10:40:54)
+
+    Scheduler : 10:40:54
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:35, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:40:55, Priority = 4)
+    	Machine_1 : Starting (10:40:54)
+    	Machine_1 : Ending (10:40:59)
+
+    Scheduler : 10:40:59
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:40, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:40:55, Priority = 4)
+    	Machine_2 : Starting (10:40:59)
+    	Machine_2 : Ending (10:41:02)
+
+    Scheduler : 10:41:02
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:40, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:41:00, Priority = 4)
+    	Machine_2 : Starting (10:41:02)
+    	Machine_2 : Ending (10:41:05)
+
+    Scheduler : 10:41:05
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:40, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:41:05, Priority = 4)
+    	Machine_1 : Starting (10:41:05)
+    	Machine_1 : Ending (10:41:10)
+
+    Scheduler : 10:41:10
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:45, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:41:05, Priority = 4)
+    	Machine_2 : Starting (10:41:10)
+    	Machine_2 : Ending (10:41:13)
+
+    Scheduler : 10:41:13
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:45, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:41:10, Priority = 4)
+    	Machine_2 : Starting (10:41:13)
+    	Machine_2 : Ending (10:41:16)
+
+    Scheduler : 10:41:16
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:45, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:41:15, Priority = 4)
+    	Machine_2 : Starting (10:41:16)
+    	Machine_2 : Ending (10:41:19)
+
+    Scheduler : 10:41:19
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:45, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:41:20, Priority = 4)
+    	Machine_1 : Starting (10:41:19)
+    	Machine_1 : Ending (10:41:24)
+
+    Scheduler : 10:41:24
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:50, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:41:20, Priority = 4)
+    	Machine_2 : Starting (10:41:24)
+    	Machine_2 : Ending (10:41:27)
+
+    Scheduler : 10:41:27
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:50, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:41:25, Priority = 4)
+    	Machine_2 : Starting (10:41:27)
+    	Machine_2 : Ending (10:41:30)
+
+    Scheduler : 10:41:30
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:50, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:41:30, Priority = 4)
+    	Machine_2 : Starting (10:41:30)
+    	Machine_2 : Ending (10:41:33)
+
+    Scheduler : 10:41:33
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:50, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:41:35, Priority = 4)
+    	Machine_1 : Starting (10:41:33)
+    	Machine_1 : Ending (10:41:38)
+
+    Scheduler : 10:41:38
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:55, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:41:35, Priority = 4)
+    	Machine_2 : Starting (10:41:38)
+    	Machine_2 : Ending (10:41:41)
+
+    Scheduler : 10:41:41
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:55, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:41:40, Priority = 4)
+    	Machine_2 : Starting (10:41:41)
+    	Machine_2 : Ending (10:41:44)
+
+    Scheduler : 10:41:44
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:38:55, Priority = 3)
+    	Machine_2 : SLEEPING	(Deadline = 10:41:45, Priority = 4)
+    	Machine_1 : Starting (10:41:44)
+    	Machine_1 : Ending (10:41:49)
+
+    Scheduler : 10:41:49
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:39:00, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:41:45, Priority = 4)
+    	Machine_2 : Starting (10:41:49)
+    	Machine_2 : Ending (10:41:52)
+
+    Scheduler : 10:41:52
+    	Pump_1 : READY	(Deadline = 10:37:05, Priority = 1)
+    	Pump_2 : READY	(Deadline = 10:37:05, Priority = 2)
+    	Machine_1 : READY	(Deadline = 10:39:00, Priority = 3)
+    	Machine_2 : READY	(Deadline = 10:41:50, Priority = 4)
+    	Machine_2 : Starting (10:41:52)
